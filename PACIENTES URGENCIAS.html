@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Pacientes - Urgencias</title>
+    <style>
+        :root {
+            --azul-hospital: #1a4b8c;      /* Azul institucional/profesional */
+            --verde-esperanza: #2e8b57;    /* Verde que transmite salud */
+            --blanco-puro: #ffffff;        /* Blanco para limpieza y pureza */
+            --gris-claro: #f5f5f5;         /* Gris claro para fondos */
+            --gris-medio: #707070;         /* Gris para texto secundario */
+            --acento-dorado: #d4af37;      /* Dorado sutil para acentos */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--gris-claro);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--azul-hospital);
+            color: var(--blanco-puro);
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--acento-dorado);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            color: var(--blanco-puro);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav ul li a:hover, nav ul li a.active {
+            background-color: var(--verde-esperanza);
+        }
+        
+        .main-title {
+            margin: 20px 0;
+            color: var(--azul-hospital);
+            border-bottom: 2px solid var(--acento-dorado);
+            padding-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-box input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            width: 300px;
+        }
+        
+        .search-box button {
+            background-color: var(--azul-hospital);
+            color: var(--blanco-puro);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .search-box button:hover {
+            background-color: var(--verde-esperanza);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        select, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: var(--azul-hospital);
+            color: var(--blanco-puro);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--verde-esperanza);
+        }
+        
+        .btn-primary {
+            background-color: var(--azul-hospital);
+        }
+        
+        .btn-danger {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--verde-esperanza);
+        }
+        
+        .btn-secondary {
+            background-color: var(--gris-medio);
+        }
+        
+        .table-container {
+            background-color: var(--blanco-puro);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background-color: var(--azul-hospital);
+            color: var(--blanco-puro);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tbody tr:hover {
+            background-color: var(--gris-claro);
+        }
+        
+        .triage-1 {
+            background-color: #ffcccc;
+        }
+        
+        .triage-2 {
+            background-color: #ffebcc;
+        }
+        
+        .triage-3 {
+            background-color: #fff2cc;
+        }
+        
+        .triage-4 {
+            background-color: #e6f7e6;
+        }
+        
+        .triage-5 {
+            background-color: #d9ead3;
+        }
+        
+        .status-pending {
+            color: var(--acento-dorado);
+            font-weight: bold;
+        }
+        
+        .status-completed {
+            color: var(--verde-esperanza);
+            font-weight: bold;
+        }
+        
+        .status-discharged {
+            color: var(--azul-hospital);
+            font-weight: bold;
+            background-color: #e6f2ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .patient-discharged {
+            opacity: 0.8;
+            background-color: #f9f9f9;
+        }
+        
+        .patient-discharged:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            margin: 0 5px;
+            padding: 8px 12px;
+        }
+        
+        .pagination button.active {
+            background-color: var(--verde-esperanza);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--blanco-puro);
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--acento-dorado);
+            padding-bottom: 10px;
+        }
+        
+        .modal-header h2 {
+            color: var(--azul-hospital);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gris-medio);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--azul-hospital);
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        footer {
+            background-color: var(--azul-hospital);
+            color: var(--blanco-puro);
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        
+        .timer-active {
+            color: #c0392b;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .trazabilidad {
+            background-color: #f9f9f9;
+            border-left: 4px solid var(--verde-esperanza);
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .trazabilidad-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .trazabilidad-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .trazabilidad-time {
+            font-weight: bold;
+            color: var(--azul-hospital);
+            min-width: 70px;
+        }
+        
+        .trazabilidad-desc {
+            margin-left: 10px;
+        }
+        
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: var(--blanco-puro);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--azul-hospital);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: var(--gris-medio);
+            font-size: 0.9em;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 15px;
+                justify-content: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Sistema de <span>Urgencias</span></div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active" id="nav-registro">Registro de Pacientes</a></li>
+                        <li><a href="#" id="nav-estadisticas">Estadísticas</a></li>
+                        <li><a href="#">Configuración</a></li>
+                        <li><a href="#">Ayuda</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sección de Registro de Pacientes -->
+        <div id="registro-section">
+            <h1 class="main-title">Registro de Pacientes en Urgencias</h1>
+            
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar paciente...">
+                    <button id="searchBtn">Buscar</button>
+                </div>
+                
+                <div class="filters">
+                    <select id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Pacientes Activos</option>
+                        <option value="alta">Pacientes Dados de Alta</option>
+                    </select>
+                    
+                    <select id="triageFilter">
+                        <option value="">Todos los triages</option>
+                        <option value="1">Nivel 1</option>
+                        <option value="2">Nivel 2</option>
+                        <option value="3">Nivel 3</option>
+                        <option value="4">Nivel 4</option>
+                        <option value="5">Nivel 5</option>
+                    </select>
+                    
+                    <select id="serviceFilter">
+                        <option value="">Todos los servicios</option>
+                        <option value="Traumatología">Traumatología y Ortopedia</option>
+                        <option value="Pediatría">Pediatría</option>
+                        <option value="Medicina General">Medicina General</option>
+                    </select>
+                    
+                    <button id="addPatientBtn" class="btn-primary">Nuevo Paciente</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="patientsTable">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Edad</th>
+                            <th>Sexo</th>
+                            <th>Hora Registro</th>
+                            <th>Triage</th>
+                            <th>Servicio</th>
+                            <th>Diagnóstico</th>
+                            <th>Destino</th>
+                            <th>Cubículo</th>
+                            <th>Estancia Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody">
+                        <!-- Los datos se cargarán dinámicamente con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <button id="prevPage">Anterior</button>
+                <span id="pageInfo">Página 1 de 1</span>
+                <button id="nextPage">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Sección de Estadísticas -->
+        <div id="estadisticas-section" style="display: none;">
+            <h1 class="main-title">Estadísticas de Pacientes</h1>
+            
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Pacientes</div>
+                    <div class="stat-value" id="totalPacientes">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pacientes Activos</div>
+                    <div class="stat-value" id="pacientesActivos">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pacientes Dados de Alta</div>
+                    <div class="stat-value" id="pacientesAlta">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Tiempo Promedio de Estancia</div>
+                    <div class="stat-value" id="tiempoPromedio">00:00</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="filters">
+                    <select id="statsDateFilter">
+                        <option value="hoy">Hoy</option>
+                        <option value="semana">Esta Semana</option>
+                        <option value="mes">Este Mes</option>
+                        <option value="todos">Todos los Registros</option>
+                    </select>
+                    <button id="exportStatsBtn" class="btn-success">Exportar Estadísticas</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="statsTable">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Edad</th>
+                            <th>Triage</th>
+                            <th>Servicio</th>
+                            <th>Diagnóstico</th>
+                            <th>Hora Registro</th>
+                            <th>Hora Alta</th>
+                            <th>Tiempo Total</th>
+                            <th>Destino Final</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody">
+                        <!-- Los datos se cargarán dinámicamente con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar paciente -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Paciente</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <form id="patientForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patientName">Nombre del Paciente</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="birthDate">Fecha de Nacimiento</label>
+                        <input type="date" id="birthDate" max="">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Edad</label>
+                        <input type="number" id="age" min="0" max="120" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gender">Sexo</label>
+                        <select id="gender">
+                            <option value="">Seleccionar</option>
+                            <option value="F">Femenino</option>
+                            <option value="M">Masculino</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="registerTime">Hora de Registro</label>
+                        <input type="time" id="registerTime">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="insurance">Aseguradora</label>
+                        <input type="text" id="insurance">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="triageTime">Hora de Triage</label>
+                        <input type="time" id="triageTime">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="triageLevel">Nivel de Triage</label>
+                        <select id="triageLevel">
+                            <option value="">Seleccionar</option>
+                            <option value="1">Nivel 1 - Resucitación</option>
+                            <option value="2">Nivel 2 - Emergencia</option>
+                            <option value="3">Nivel 3 - Urgencia</option>
+                            <option value="4">Nivel 4 - Urgencia Menor</option>
+                            <option value="5">Nivel 5 - No Urgente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="service">Servicio</label>
+                        <select id="service">
+                            <option value="">Seleccionar</option>
+                            <option value="Traumatología">Traumatología y Ortopedia</option>
+                            <option value="Pediatría">Pediatría</option>
+                            <option value="Medicina General">Medicina General</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cubicle">Cubículo</label>
+                        <select id="cubicle">
+                            <option value="">Seleccionar</option>
+                            <option value="1">Cubículo 1</option>
+                            <option value="2">Cubículo 2</option>
+                            <option value="3">Cubículo 3</option>
+                            <option value="4">Cubículo 4</option>
+                            <option value="Sala de Choque">Sala de Choque</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="diagnosis">Diagnóstico</label>
+                    <textarea id="diagnosis" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="destination">Destino del Paciente</label>
+                    <select id="destination">
+                        <option value="">Seleccionar</option>
+                        <option value="Imagen">Imagen</option>
+                        <option value="Laboratorio">Laboratorio</option>
+                        <option value="Observación">Observación</option>
+                        <option value="Alta">Alta Voluntaria</option>
+                        <option value="Hospitalización">Hospitalización</option>
+                        <!-- Nuevos destinos agregados -->
+                        <option value="Solicitud de Interconsulta">Solicitud de Interconsulta</option>
+                        <option value="Respuesta de Interconsulta">Respuesta de Interconsulta</option>
+                        <option value="Entrega de Resultados de Laboratorio">Entrega de Resultados de Laboratorio</option>
+                        <option value="Entrega de Resultado de Imagen">Entrega de Resultado de Imagen</option>
+                        <option value="Entrega de Expediente a Admisión">Entrega de Expediente a Admisión</option>
+                        <option value="Entrega de Papelería de Admisión">Entrega de Papelería de Admisión</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn-danger">Cancelar</button>
+                    <button type="submit" id="saveBtn" class="btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para trazabilidad -->
+    <div id="trazabilidadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="trazabilidadTitle">Trazabilidad del Paciente</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div id="trazabilidadContent">
+                <!-- El contenido se llenará dinámicamente -->
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" id="closeTrazabilidadBtn" class="btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Sistema de Gestión de Pacientes de Urgencias &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        // Datos de ejemplo para mostrar en la tabla
+        const samplePatients = [
+            {
+                id: 1,
+                name: "Juan Pérez López",
+                age: 45,
+                gender: "M",
+                registerTime: "08:30",
+                triage: "2",
+                service: "Traumatología",
+                diagnosis: "Fractura de tibia",
+                destination: "Imagen",
+                cubicle: "1",
+                stayTime: "02:15",
+                status: "activo",
+                registerDateTime: new Date(new Date().setHours(8, 30, 0, 0)),
+                dischargeDateTime: null,
+                trazabilidad: [
+                    { time: "08:30", desc: "Registro en urgencias" },
+                    { time: "08:45", desc: "Evaluación de triage - Nivel 2" },
+                    { time: "09:00", desc: "Asignado a cubículo 1" },
+                    { time: "09:15", desc: "Evaluación médica inicial" },
+                    { time: "09:30", desc: "Enviado a Imagen para radiografía" }
+                ]
+            },
+            {
+                id: 2,
+                name: "María García Ruiz",
+                age: 32,
+                gender: "F",
+                registerTime: "09:15",
+                triage: "3",
+                service: "Medicina General",
+                diagnosis: "Infección respiratoria",
+                destination: "Observación",
+                cubicle: "2",
+                stayTime: "01:45",
+                status: "activo",
+                registerDateTime: new Date(new Date().setHours(9, 15, 0, 0)),
+                dischargeDateTime: null,
+                trazabilidad: [
+                    { time: "09:15", desc: "Registro en urgencias" },
+                    { time: "09:25", desc: "Evaluación de triage - Nivel 3" },
+                    { time: "09:40", desc: "Asignado a cubículo 2" },
+                    { time: "10:00", desc: "Evaluación médica" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Carlos Rodríguez Méndez",
+                age: 67,
+                gender: "M",
+                registerTime: "10:05",
+                triage: "1",
+                service: "Traumatología",
+                diagnosis: "Traumatismo craneoencefálico",
+                destination: "Hospitalización",
+                cubicle: "Sala de Choque",
+                stayTime: "03:30",
+                status: "alta",
+                registerDateTime: new Date(new Date().setHours(10, 5, 0, 0)),
+                dischargeDateTime: new Date(new Date().setHours(13, 35, 0, 0)),
+                trazabilidad: [
+                    { time: "10:05", desc: "Registro en urgencias - Paciente crítico" },
+                    { time: "10:07", desc: "Evaluación de triage - Nivel 1" },
+                    { time: "10:10", desc: "Trasladado a Sala de Choque" },
+                    { time: "10:20", desc: "Equipo de resucitación activado" },
+                    { time: "10:45", desc: "Estabilización inicial completada" },
+                    { time: "11:30", desc: "Preparado para hospitalización" },
+                    { time: "13:35", desc: "Alta médica - Trasladado a hospitalización" }
+                ]
+            }
+        ];
+
+        // Variables globales
+        let patients = [...samplePatients];
+        let currentPage = 1;
+        const patientsPerPage = 10;
+        let editingPatientId = null;
+        let timerInterval;
+
+        // Elementos del DOM
+        const patientsTableBody = document.getElementById('patientsTableBody');
+        const statsTableBody = document.getElementById('statsTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const statusFilter = document.getElementById('statusFilter');
+        const triageFilter = document.getElementById('triageFilter');
+        const serviceFilter = document.getElementById('serviceFilter');
+        const addPatientBtn = document.getElementById('addPatientBtn');
+        const patientModal = document.getElementById('patientModal');
+        const trazabilidadModal = document.getElementById('trazabilidadModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const trazabilidadTitle = document.getElementById('trazabilidadTitle');
+        const trazabilidadContent = document.getElementById('trazabilidadContent');
+        const patientForm = document.getElementById('patientForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const closeModalBtn = document.querySelectorAll('.close-modal');
+        const closeTrazabilidadBtn = document.getElementById('closeTrazabilidadBtn');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageInfo = document.getElementById('pageInfo');
+        const birthDateInput = document.getElementById('birthDate');
+        const ageInput = document.getElementById('age');
+        const registerTimeInput = document.getElementById('registerTime');
+        const destinationSelect = document.getElementById('destination');
+        
+        // Elementos de navegación y estadísticas
+        const navRegistro = document.getElementById('nav-registro');
+        const navEstadisticas = document.getElementById('nav-estadisticas');
+        const registroSection = document.getElementById('registro-section');
+        const estadisticasSection = document.getElementById('estadisticas-section');
+        const totalPacientes = document.getElementById('totalPacientes');
+        const pacientesActivos = document.getElementById('pacientesActivos');
+        const pacientesAlta = document.getElementById('pacientesAlta');
+        const tiempoPromedio = document.getElementById('tiempoPromedio');
+        const statsDateFilter = document.getElementById('statsDateFilter');
+        const exportStatsBtn = document.getElementById('exportStatsBtn');
+
+        // Funciones
+        function calculateAge(birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        function formatTimeDiff(startTime, endTime = null) {
+            const end = endTime || new Date();
+            const diffMs = end - startTime;
+            
+            // Convertir a horas, minutos y segundos
+            const diffHrs = Math.floor(diffMs / 3600000);
+            const diffMins = Math.floor((diffMs % 3600000) / 60000);
+            const diffSecs = Math.floor((diffMs % 60000) / 1000);
+            
+            return `${diffHrs.toString().padStart(2, '0')}:${diffMins.toString().padStart(2, '0')}:${diffSecs.toString().padStart(2, '0')}`;
+        }
+
+        function formatTimeForDisplay(timeString) {
+            if (!timeString) return "00:00";
+            const parts = timeString.split(':');
+            return `${parts[0]}:${parts[1]}`;
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        function getDestinationDescription(destination) {
+            const descriptions = {
+                "Imagen": "Enviado a Imagen para estudios radiológicos",
+                "Laboratorio": "Enviado a Laboratorio para análisis",
+                "Observación": "Trasladado a área de Observación",
+                "Alta": "Alta médica - Paciente dado de alta",
+                "Hospitalización": "Trasladado a Hospitalización",
+                "Solicitud de Interconsulta": "Solicitud de interconsulta realizada",
+                "Respuesta de Interconsulta": "Respuesta de interconsulta recibida",
+                "Entrega de Resultados de Laboratorio": "Resultados de laboratorio entregados",
+                "Entrega de Resultado de Imagen": "Resultado de imagen entregado",
+                "Entrega de Expediente a Admisión": "Expediente entregado a Admisión",
+                "Entrega de Papelería de Admisión": "Papelería de admisión entregada"
+            };
+            
+            return descriptions[destination] || `Destino cambiado a: ${destination}`;
+        }
+
+        function renderPatientsTable() {
+            patientsTableBody.innerHTML = '';
+            
+            // Filtrar pacientes según los filtros aplicados
+            let filteredPatients = [...patients];
+            const statusValue = statusFilter.value;
+            const triageValue = triageFilter.value;
+            const serviceValue = serviceFilter.value;
+            
+            if (statusValue) {
+                filteredPatients = filteredPatients.filter(patient => patient.status === statusValue);
+            }
+            
+            if (triageValue) {
+                filteredPatients = filteredPatients.filter(patient => patient.triage === triageValue);
+            }
+            
+            if (serviceValue) {
+                filteredPatients = filteredPatients.filter(patient => patient.service === serviceValue);
+            }
+            
+            // Calcular índices para la paginación
+            const startIndex = (currentPage - 1) * patientsPerPage;
+            const endIndex = startIndex + patientsPerPage;
+            const patientsToShow = filteredPatients.slice(startIndex, endIndex);
+            
+            if (patientsToShow.length === 0) {
+                patientsTableBody.innerHTML = '<tr><td colspan="12" style="text-align: center;">No se encontraron pacientes</td></tr>';
+                return;
+            }
+            
+            patientsToShow.forEach(patient => {
+                const row = document.createElement('tr');
+                if (patient.status === 'alta') {
+                    row.className = 'patient-discharged';
+                } else {
+                    row.className = `triage-${patient.triage}`;
+                }
+                
+                // Calcular tiempo transcurrido si el paciente está activo
+                let stayTimeDisplay = patient.stayTime;
+                if (patient.status === 'activo' && patient.registerDateTime) {
+                    stayTimeDisplay = formatTimeDiff(patient.registerDateTime);
+                }
+                
+                // Determinar texto del estado
+                let estadoText = '';
+                let estadoClass = '';
+                if (patient.status === 'activo') {
+                    estadoText = 'Activo';
+                    estadoClass = 'status-pending';
+                } else if (patient.status === 'alta') {
+                    estadoText = 'Alta';
+                    estadoClass = 'status-discharged';
+                }
+                
+                row.innerHTML = `
+                    <td>${patient.name}</td>
+                    <td>${patient.age} años</td>
+                    <td>${patient.gender === 'M' ? 'Masculino' : 'Femenino'}</td>
+                    <td>${patient.registerTime}</td>
+                    <td>Nivel ${patient.triage}</td>
+                    <td>${patient.service}</td>
+                    <td>${patient.diagnosis}</td>
+                    <td>${patient.destination}</td>
+                    <td>${patient.cubicle}</td>
+                    <td class="${patient.status === 'activo' ? 'timer-active' : ''}">${stayTimeDisplay}</td>
+                    <td><span class="${estadoClass}">${estadoText}</span></td>
+                    <td>
+                        <button class="edit-btn" data-id="${patient.id}">Editar</button>
+                        <button class="delete-btn" data-id="${patient.id}">Eliminar</button>
+                        <button class="trazabilidad-btn" data-id="${patient.id}">Trazabilidad</button>
+                        ${patient.status === 'activo' ? '<button class="discharge-btn" data-id="${patient.id}">Dar Alta</button>' : ''}
+                    </td>
+                `;
+                
+                patientsTableBody.appendChild(row);
+            });
+            
+            // Actualizar información de paginación
+            const totalPages = Math.ceil(filteredPatients.length / patientsPerPage);
+            pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+            
+            // Habilitar/deshabilitar botones de paginación
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', handleEditPatient);
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', handleDeletePatient);
+            });
+            
+            document.querySelectorAll('.discharge-btn').forEach(btn => {
+                btn.addEventListener('click', handleDischargePatient);
+            });
+            
+            document.querySelectorAll('.trazabilidad-btn').forEach(btn => {
+                btn.addEventListener('click', handleTrazabilidad);
+            });
+        }
+
+        function renderStatistics() {
+            // Calcular estadísticas
+            const total = patients.length;
+            const activos = patients.filter(p => p.status === 'activo').length;
+            const altas = patients.filter(p => p.status === 'alta').length;
+            
+            // Calcular tiempo promedio de estancia para pacientes dados de alta
+            const pacientesConAlta = patients.filter(p => p.status === 'alta' && p.dischargeDateTime);
+            let tiempoPromedioMs = 0;
+            
+            if (pacientesConAlta.length > 0) {
+                pacientesConAlta.forEach(paciente => {
+                    tiempoPromedioMs += (paciente.dischargeDateTime - paciente.registerDateTime);
+                });
+                tiempoPromedioMs = tiempoPromedioMs / pacientesConAlta.length;
+                
+                const horas = Math.floor(tiempoPromedioMs / 3600000);
+                const minutos = Math.floor((tiempoPromedioMs % 3600000) / 60000);
+                tiempoPromedio.textContent = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+            } else {
+                tiempoPromedio.textContent = "00:00";
+            }
+            
+            // Actualizar estadísticas en la UI
+            totalPacientes.textContent = total;
+            pacientesActivos.textContent = activos;
+            pacientesAlta.textContent = altas;
+            
+            // Renderizar tabla de estadísticas
+            renderStatsTable();
+        }
+
+        function renderStatsTable() {
+            statsTableBody.innerHTML = '';
+            
+            let pacientesParaEstadisticas = patients.filter(p => p.status === 'alta');
+            
+            if (pacientesParaEstadisticas.length === 0) {
+                statsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No hay pacientes dados de alta para mostrar estadísticas</td></tr>';
+                return;
+            }
+            
+            pacientesParaEstadisticas.forEach(patient => {
+                const row = document.createElement('tr');
+                
+                const tiempoTotal = patient.dischargeDateTime ? 
+                    formatTimeDiff(patient.registerDateTime, patient.dischargeDateTime) : 
+                    patient.stayTime;
+                
+                const horaAlta = patient.dischargeDateTime ? 
+                    `${patient.dischargeDateTime.getHours().toString().padStart(2, '0')}:${patient.dischargeDateTime.getMinutes().toString().padStart(2, '0')}` : 
+                    "No registrada";
+                
+                row.innerHTML = `
+                    <td>${patient.name}</td>
+                    <td>${patient.age} años</td>
+                    <td>Nivel ${patient.triage}</td>
+                    <td>${patient.service}</td>
+                    <td>${patient.diagnosis}</td>
+                    <td>${patient.registerTime}</td>
+                    <td>${horaAlta}</td>
+                    <td>${tiempoTotal}</td>
+                    <td>${patient.destination}</td>
+                `;
+                
+                statsTableBody.appendChild(row);
+            });
+        }
+
+        function handleEditPatient(e) {
+            const patientId = parseInt(e.target.getAttribute('data-id'));
+            const patient = patients.find(p => p.id === patientId);
+            
+            if (patient) {
+                editingPatientId = patientId;
+                modalTitle.textContent = 'Editar Paciente';
+                
+                // Llenar el formulario con los datos del paciente
+                document.getElementById('patientName').value = patient.name;
+                
+                // Calcular fecha de nacimiento a partir de la edad
+                const today = new Date();
+                const birthYear = today.getFullYear() - patient.age;
+                const birthDate = new Date(birthYear, today.getMonth(), today.getDate());
+                document.getElementById('birthDate').value = birthDate.toISOString().split('T')[0];
+                
+                document.getElementById('age').value = patient.age;
+                document.getElementById('gender').value = patient.gender;
+                document.getElementById('registerTime').value = patient.registerTime;
+                document.getElementById('triageLevel').value = patient.triage;
+                document.getElementById('service').value = patient.service;
+                document.getElementById('diagnosis').value = patient.diagnosis;
+                document.getElementById('destination').value = patient.destination;
+                document.getElementById('cubicle').value = patient.cubicle;
+                
+                // Mostrar el modal
+                patientModal.style.display = 'flex';
+            }
+        }
+
+        function handleDeletePatient(e) {
+            const patientId = parseInt(e.target.getAttribute('data-id'));
+            const patient = patients.find(p => p.id === patientId);
+            
+            if (patient && patient.status === 'alta') {
+                if (confirm('¿Está seguro de que desea eliminar permanentemente este registro de paciente? Esta acción no se puede deshacer.')) {
+                    patients = patients.filter(p => p.id !== patientId);
+                    renderPatientsTable();
+                    if (estadisticasSection.style.display !== 'none') {
+                        renderStatistics();
+                    }
+                }
+            } else if (patient && patient.status === 'activo') {
+                if (confirm('¿Está seguro de que desea eliminar este paciente activo?')) {
+                    patients = patients.filter(p => p.id !== patientId);
+                    renderPatientsTable();
+                }
+            }
+        }
+
+        function handleDischargePatient(e) {
+            const patientId = parseInt(e.target.getAttribute('data-id'));
+            const patientIndex = patients.findIndex(p => p.id === patientId);
+            
+            if (patientIndex !== -1 && patients[patientIndex].status === 'activo') {
+                // Cambiar estado a "alta"
+                patients[patientIndex].status = 'alta';
+                patients[patientIndex].dischargeDateTime = new Date();
+                
+                // Calcular tiempo total de estancia
+                patients[patientIndex].stayTime = formatTimeDiff(
+                    patients[patientIndex].registerDateTime, 
+                    patients[patientIndex].dischargeDateTime
+                );
+                
+                // Agregar evento de alta a la trazabilidad
+                if (!patients[patientIndex].trazabilidad) {
+                    patients[patientIndex].trazabilidad = [];
+                }
+                
+                const currentTime = getCurrentTime();
+                patients[patientIndex].trazabilidad.push({
+                    time: currentTime,
+                    desc: "Alta médica - Paciente dado de alta"
+                });
+                
+                // Actualizar la tabla
+                renderPatientsTable();
+                
+                // Mostrar mensaje de confirmación
+                alert(`Paciente ${patients[patientIndex].name} dado de alta exitosamente. El registro se mantendrá para estadísticas.`);
+                
+                console.log('Paciente dado de alta:', patients[patientIndex]);
+            } else {
+                alert('No se puede dar de alta a este paciente. Puede que ya esté dado de alta.');
+            }
+        }
+
+        function handleTrazabilidad(e) {
+            const patientId = parseInt(e.target.getAttribute('data-id'));
+            const patient = patients.find(p => p.id === patientId);
+            
+            if (patient) {
+                trazabilidadTitle.textContent = `Trazabilidad - ${patient.name}`;
+                trazabilidadContent.innerHTML = '';
+                
+                if (patient.trazabilidad && patient.trazabilidad.length > 0) {
+                    const trazabilidadContainer = document.createElement('div');
+                    trazabilidadContainer.className = 'trazabilidad';
+                    
+                    patient.trazabilidad.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'trazabilidad-item';
+                        itemDiv.innerHTML = `
+                            <div class="trazabilidad-time">${item.time}</div>
+                            <div class="trazabilidad-desc">${item.desc}</div>
+                        `;
+                        trazabilidadContainer.appendChild(itemDiv);
+                    });
+                    
+                    trazabilidadContent.appendChild(trazabilidadContainer);
+                } else {
+                    trazabilidadContent.innerHTML = '<p>No hay información de trazabilidad disponible para este paciente.</p>';
+                }
+                
+                trazabilidadModal.style.display = 'flex';
+            }
+        }
+
+        function handleAddPatient() {
+            editingPatientId = null;
+            modalTitle.textContent = 'Nuevo Paciente';
+            
+            // Establecer fecha máxima como hoy
+            const today = new Date();
+            birthDateInput.max = today.toISOString().split('T')[0];
+            
+            // Establecer hora actual por defecto
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            registerTimeInput.value = `${hours}:${minutes}`;
+            
+            patientForm.reset();
+            patientModal.style.display = 'flex';
+        }
+
+        function handleSavePatient(e) {
+            e.preventDefault();
+            
+            // Obtener datos del formulario
+            const birthDate = document.getElementById('birthDate').value;
+            const age = birthDate ? calculateAge(birthDate) : parseInt(document.getElementById('age').value) || 0;
+            const registerTime = document.getElementById('registerTime').value;
+            const destination = document.getElementById('destination').value;
+            
+            // Crear objeto de fecha y hora de registro
+            const registerDateTime = new Date();
+            const [hours, minutes] = registerTime.split(':');
+            registerDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            
+            const formData = {
+                name: document.getElementById('patientName').value,
+                age: age,
+                gender: document.getElementById('gender').value,
+                registerTime: registerTime,
+                triage: document.getElementById('triageLevel').value,
+                service: document.getElementById('service').value,
+                diagnosis: document.getElementById('diagnosis').value,
+                destination: destination,
+                cubicle: document.getElementById('cubicle').value,
+                stayTime: "00:00:00",
+                registerDateTime: registerDateTime,
+                status: "activo",
+                dischargeDateTime: null
+            };
+            
+            if (editingPatientId) {
+                // Actualizar paciente existente
+                const index = patients.findIndex(p => p.id === editingPatientId);
+                if (index !== -1) {
+                    // Mantener la trazabilidad existente y el estado
+                    formData.trazabilidad = patients[index].trazabilidad || [];
+                    formData.status = patients[index].status;
+                    formData.dischargeDateTime = patients[index].dischargeDateTime;
+                    
+                    // Agregar evento de cambio de destino a la trazabilidad
+                    if (destination && destination !== patients[index].destination) {
+                        formData.trazabilidad.push({
+                            time: getCurrentTime(),
+                            desc: getDestinationDescription(destination)
+                        });
+                    }
+                    
+                    patients[index] = { ...patients[index], ...formData };
+                }
+            } else {
+                // Agregar nuevo paciente
+                const newId = patients.length > 0 ? Math.max(...patients.map(p => p.id)) + 1 : 1;
+                formData.trazabilidad = [
+                    { time: registerTime, desc: "Registro en urgencias" }
+                ];
+                
+                // Agregar evento de destino inicial si se seleccionó
+                if (destination) {
+                    formData.trazabilidad.push({
+                        time: getCurrentTime(),
+                        desc: getDestinationDescription(destination)
+                    });
+                }
+                
+                patients.push({ id: newId, ...formData });
+            }
+            
+            // Cerrar modal y actualizar tabla
+            patientModal.style.display = 'none';
+            renderPatientsTable();
+        }
+
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (searchTerm) {
+                const filteredPatients = patients.filter(patient => 
+                    patient.name.toLowerCase().includes(searchTerm) ||
+                    patient.diagnosis.toLowerCase().includes(searchTerm)
+                );
+                
+                patients = filteredPatients;
+                currentPage = 1;
+                renderPatientsTable();
+            } else {
+                patients = [...samplePatients];
+                renderPatientsTable();
+            }
+        }
+
+        function handleFilter() {
+            currentPage = 1;
+            renderPatientsTable();
+        }
+
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPatientsTable();
+            }
+        }
+
+        function goToNextPage() {
+            const totalPages = Math.ceil(patients.length / patientsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPatientsTable();
+            }
+        }
+
+        function switchToRegistro() {
+            registroSection.style.display = 'block';
+            estadisticasSection.style.display = 'none';
+            navRegistro.classList.add('active');
+            navEstadisticas.classList.remove('active');
+        }
+
+        function switchToEstadisticas() {
+            registroSection.style.display = 'none';
+            estadisticasSection.style.display = 'block';
+            navRegistro.classList.remove('active');
+            navEstadisticas.classList.add('active');
+            renderStatistics();
+        }
+
+        function exportStatistics() {
+            // Crear contenido CSV
+            let csvContent = "Paciente,Edad,Triage,Servicio,Diagnóstico,Hora Registro,Hora Alta,Tiempo Total,Destino Final\n";
+            
+            patients.filter(p => p.status === 'alta').forEach(patient => {
+                const tiempoTotal = patient.dischargeDateTime ? 
+                    formatTimeDiff(patient.registerDateTime, patient.dischargeDateTime) : 
+                    patient.stayTime;
+                
+                const horaAlta = patient.dischargeDateTime ? 
+                    `${patient.dischargeDateTime.getHours().toString().padStart(2, '0')}:${patient.dischargeDateTime.getMinutes().toString().padStart(2, '0')}` : 
+                    "No registrada";
+                
+                csvContent += `"${patient.name}",${patient.age},"Nivel ${patient.triage}","${patient.service}","${patient.diagnosis}","${patient.registerTime}","${horaAlta}","${tiempoTotal}","${patient.destination}"\n`;
+            });
+            
+            // Crear y descargar archivo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "estadisticas_pacientes.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Establecer fecha máxima para fecha de nacimiento
+            const today = new Date();
+            birthDateInput.max = today.toISOString().split('T')[0];
+            
+            // Calcular edad cuando cambia la fecha de nacimiento
+            birthDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const age = calculateAge(this.value);
+                    ageInput.value = age;
+                }
+            });
+            
+            // Inicializar tabla
+            renderPatientsTable();
+            
+            // Iniciar temporizador para actualizar tiempos en tiempo real
+            timerInterval = setInterval(() => {
+                if (registroSection.style.display !== 'none') {
+                    renderPatientsTable();
+                }
+            }, 1000);
+            
+            // Event listeners para búsqueda y filtros
+            searchBtn.addEventListener('click', handleSearch);
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+            
+            statusFilter.addEventListener('change', handleFilter);
+            triageFilter.addEventListener('change', handleFilter);
+            serviceFilter.addEventListener('change', handleFilter);
+            
+            // Event listeners para navegación
+            navRegistro.addEventListener('click', switchToRegistro);
+            navEstadisticas.addEventListener('click', switchToEstadisticas);
+            
+            // Event listeners para pacientes
+            addPatientBtn.addEventListener('click', handleAddPatient);
+            patientForm.addEventListener('submit', handleSavePatient);
+            cancelBtn.addEventListener('click', () => {
+                patientModal.style.display = 'none';
+            });
+            
+            // Event listeners para modales
+            closeTrazabilidadBtn.addEventListener('click', () => {
+                trazabilidadModal.style.display = 'none';
+            });
+            
+            closeModalBtn.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    patientModal.style.display = 'none';
+                    trazabilidadModal.style.display = 'none';
+                });
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === patientModal) {
+                    patientModal.style.display = 'none';
+                }
+                if (e.target === trazabilidadModal) {
+                    trazabilidadModal.style.display = 'none';
+                }
+            });
+            
+            // Event listeners para paginación
+            prevPageBtn.addEventListener('click', goToPrevPage);
+            nextPageBtn.addEventListener('click', goToNextPage);
+            
+            // Event listener para exportar estadísticas
+            exportStatsBtn.addEventListener('click', exportStatistics);
+        });
+    </script>
+</body>
+</html>
