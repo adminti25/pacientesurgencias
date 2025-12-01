@@ -1,0 +1,98 @@
+:root {
+    --azul-hospital: #1a4b8c;
+    --verde-esperanza: #2e8b57;
+    --blanco-puro: #ffffff;
+    --gris-claro: #f5f5f5;
+    --gris-medio: #707070;
+    --acento-dorado: #d4af37;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: var(--gris-claro); color: #333; line-height: 1.6; }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+header { background-color: var(--azul-hospital); color: var(--blanco-puro); padding: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.header-content { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 24px; font-weight: bold; }
+.logo span { color: var(--acento-dorado); }
+nav ul { display: flex; list-style: none; }
+nav ul li { margin-left: 20px; }
+nav ul li a { color: var(--blanco-puro); text-decoration: none; padding: 5px 10px; border-radius: 4px; transition: background-color 0.3s; }
+nav ul li a:hover, nav ul li a.active { background-color: var(--verde-esperanza); }
+
+.main-title { margin: 20px 0; color: var(--azul-hospital); border-bottom: 2px solid var(--acento-dorado); padding-bottom: 10px; }
+
+.controls { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.search-box { display: flex; align-items: center; }
+.search-box input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; width: 300px; }
+.search-box button { background-color: var(--azul-hospital); color: var(--blanco-puro); border: none; padding: 8px 15px; border-radius: 0 4px 4px 0; cursor: pointer; }
+.search-box button:hover { background-color: var(--verde-esperanza); }
+
+.filters { display: flex; gap: 10px; }
+select, button { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; }
+button { background-color: var(--azul-hospital); color: var(--blanco-puro); border: none; cursor: pointer; transition: background-color 0.3s; }
+button:hover { background-color: var(--verde-esperanza); }
+.btn-primary { background-color: var(--azul-hospital); }
+.btn-danger { background-color: #c0392b; }
+.btn-success { background-color: var(--verde-esperanza); }
+.btn-secondary { background-color: var(--gris-medio); }
+
+.table-container { background-color: var(--blanco-puro); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 30px; }
+table { width: 100%; border-collapse: collapse; }
+thead { background-color: var(--azul-hospital); color: var(--blanco-puro); }
+th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+tbody tr:hover { background-color: var(--gris-claro); }
+
+.triage-1 { background-color: #ffcccc; }
+.triage-2 { background-color: #ffebcc; }
+.triage-3 { background-color: #fff2cc; }
+.triage-4 { background-color: #e6f7e6; }
+.triage-5 { background-color: #d9ead3; }
+
+.status-pending { color: var(--acento-dorado); font-weight: bold; }
+.status-discharged { color: var(--azul-hospital); font-weight: bold; background-color: #e6f2ff; padding: 4px 8px; border-radius: 4px; }
+.patient-discharged { opacity: 0.8; background-color: #f9f9f9; }
+.patient-discharged:hover { background-color: #f0f0f0; }
+
+.pagination { display: flex; justify-content: center; margin-top: 20px; }
+.pagination button { margin: 0 5px; padding: 8px 12px; }
+.pagination button.active { background-color: var(--verde-esperanza); }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+.modal-content { background-color: var(--blanco-puro); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--acento-dorado); padding-bottom: 10px; }
+.modal-header h2 { color: var(--azul-hospital); }
+.close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gris-medio); }
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--azul-hospital); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; }
+.form-row { display: flex; gap: 15px; }
+.form-row .form-group { flex: 1; }
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+footer { background-color: var(--azul-hospital); color: var(--blanco-puro); text-align: center; padding: 20px 0; margin-top: 40px; }
+
+.timer-active { color: #c0392b; font-weight: bold; animation: pulse 1.5s infinite; }
+.trazabilidad { background-color: #f9f9f9; border-left: 4px solid var(--verde-esperanza); padding: 10px 15px; margin: 5px 0; border-radius: 0 4px 4px 0; }
+.trazabilidad-item { display: flex; align-items: center; margin-bottom: 5px; }
+.trazabilidad-time { font-weight: bold; color: var(--azul-hospital); min-width: 70px; }
+.trazabilidad-desc { margin-left: 10px; }
+
+.stats-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.stat-card { background-color: var(--blanco-puro); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+.stat-value { font-size: 2em; font-weight: bold; color: var(--azul-hospital); margin: 10px 0; }
+.stat-label { color: var(--gris-medio); font-size: 0.9em; }
+
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+@media (max-width: 768px) {
+    .header-content { flex-direction: column; text-align: center; }
+    nav ul { margin-top: 15px; justify-content: center; }
+    .controls { flex-direction: column; }
+    .search-box input { width: 100%; }
+    .table-container { overflow-x: auto; }
+    .form-row { flex-direction: column; gap: 0; }
+    .stats-summary { grid-template-columns: 1fr; }
+}

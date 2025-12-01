@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Pacientes - Urgencias</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Sistema de <span>Urgencias</span></div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active" id="nav-registro">Registro de Pacientes</a></li>
+                        <li><a href="#" id="nav-estadisticas">Estadísticas</a></li>
+                        <li><a href="#">Configuración</a></li>
+                        <li><a href="#">Ayuda</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Registro de Pacientes -->
+        <div id="registro-section">
+            <h1 class="main-title">Registro de Pacientes en Urgencias</h1>
+            
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar paciente...">
+                    <button id="searchBtn">Buscar</button>
+                </div>
+                <div class="filters">
+                    <select id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Pacientes Activos</option>
+                        <option value="alta">Pacientes Dados de Alta</option>
+                    </select>
+                    <select id="triageFilter">
+                        <option value="">Todos los triages</option>
+                        <option value="1">Nivel 1</option>
+                        <option value="2">Nivel 2</option>
+                        <option value="3">Nivel 3</option>
+                        <option value="4">Nivel 4</option>
+                        <option value="5">Nivel 5</option>
+                    </select>
+                    <select id="serviceFilter">
+                        <option value="">Todos los servicios</option>
+                        <option value="Traumatología">Traumatología y Ortopedia</option>
+                        <option value="Pediatría">Pediatría</option>
+                        <option value="Medicina General">Medicina General</option>
+                    </select>
+                    <button id="addPatientBtn" class="btn-primary">Nuevo Paciente</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="patientsTable">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th><th>Edad</th><th>Sexo</th><th>Hora Registro</th><th>Triage</th>
+                            <th>Servicio</th><th>Diagnóstico</th><th>Destino</th><th>Cubículo</th>
+                            <th>Estancia Total</th><th>Estado</th><th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <button id="prevPage">Anterior</button>
+                <span id="pageInfo">Página 1 de 1</span>
+                <button id="nextPage">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div id="estadisticas-section" style="display: none;">
+            <h1 class="main-title">Estadísticas de Pacientes</h1>
+            <div class="stats-summary">
+                <div class="stat-card"><div class="stat-label">Total de Pacientes</div><div class="stat-value" id="totalPacientes">0</div></div>
+                <div class="stat-card"><div class="stat-label">Pacientes Activos</div><div class="stat-value" id="pacientesActivos">0</div></div>
+                <div class="stat-card"><div class="stat-label">Pacientes Dados de Alta</div><div class="stat-value" id="pacientesAlta">0</div></div>
+                <div class="stat-card"><div class="stat-label">Tiempo Promedio de Estancia</div><div class="stat-value" id="tiempoPromedio">00:00</div></div>
+            </div>
+
+            <div class="controls">
+                <div class="filters">
+                    <select id="statsDateFilter">
+                        <option value="hoy">Hoy</option><option value="semana">Esta Semana</option>
+                        <option value="mes">Este Mes</option><option value="todos">Todos los Registros</option>
+                    </select>
+                    <button id="exportStatsBtn" class="btn-success">Exportar Estadísticas</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="statsTable">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th><th>Edad</th><th>Triage</th><th>Servicio</th><th>Diagnóstico</th>
+                            <th>Hora Registro</th><th>Hora Alta</th><th>Tiempo Total</th><th>Destino Final</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paciente -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Paciente</h2>
+                <button class="close-modal">×</button>
+            </div>
+            <form id="patientForm">
+                <!-- Todo el formulario igual que antes (lo dejo completo abajo) -->
+                <div class="form-row">
+                    <div class="form-group"><label for="patientName">Nombre del Paciente</label><input type="text" id="patientName" required></div>
+                    <div class="form-group"><label for="birthDate">Fecha de Nacimiento</label><input type="date" id="birthDate"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="age">Edad</label><input type="number" id="age" readonly></div>
+                    <div class="form-group"><label for="gender">Sexo</label>
+                        <select id="gender"><option value="">Seleccionar</option><option value="F">Femenino</option><option value="M">Masculino</option></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="registerTime">Hora de Registro</label><input type="time" id="registerTime"></div>
+                    <div class="form-group"><label for="insurance">Aseguradora</label><input type="text" id="insurance"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="triageTime">Hora de Triage</label><input type="time" id="triageTime"></div>
+                    <div class="form-group"><label for="triageLevel">Nivel de Triage</label>
+                        <select id="triageLevel">
+                            <option value="">Seleccionar</option>
+                            <option value="1">Nivel 1 - Resucitación</option>
+                            <option value="2">Nivel 2 - Emergencia</option>
+                            <option value="3">Nivel 3 - Urgencia</option>
+                            <option value="4">Nivel 4 - Urgencia Menor</option>
+                            <option value="5">Nivel 5 - No Urgente</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="service">Servicio</label>
+                        <select id="service">
+                            <option value="">Seleccionar</option>
+                            <option value="Traumatología">Traumatología y Ortopedia</option>
+                            <option value="Pediatría">Pediatría</option>
+                            <option value="Medicina General">Medicina General</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label for="cubicle">Cubículo</label>
+                        <select id="cubicle">
+                            <option value="">Seleccionar</option>
+                            <option value="1">Cubículo 1</option><option value="2">Cubículo 2</option>
+                            <option value="3">Cubículo 3</option><option value="4">Cubículo 4</option>
+                            <option value="Sala de Choque">Sala de Choque</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label for="diagnosis">Diagnóstico</label><textarea id="diagnosis" rows="3"></textarea></div>
+                <div class="form-group"><label for="destination">Destino del Paciente</label>
+                    <select id="destination">
+                        <option value="">Seleccionar</option>
+                        <option value="Imagen">Imagen</option><option value="Laboratorio">Laboratorio</option>
+                        <option value="Observación">Observación</option><option value="Alta">Alta Voluntaria</option>
+                        <option value="Hospitalización">Hospitalización</option>
+                        <option value="Solicitud de Interconsulta">Solicitud de Interconsulta</option>
+                        <option value="Respuesta de Interconsulta">Respuesta de Interconsulta</option>
+                        <option value="Entrega de Resultados de Laboratorio">Entrega de Resultados de Laboratorio</option>
+                        <option value="Entrega de Resultado de Imagen">Entrega de Resultado de Imagen</option>
+                        <option value="Entrega de Expediente a Admisión">Entrega de Expediente a Admisión</option>
+                        <option value="Entrega de Papelería de Admisión">Entrega de Papelería de Admisión</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn-danger">Cancelar</button>
+                    <button type="submit" class="btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Trazabilidad -->
+    <div id="trazabilidadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="trazabilidadTitle">Trazabilidad del Paciente</h2>
+                <button class="close-modal">×</button>
+            </div>
+            <div id="trazabilidadContent"></div>
+            <div class="form-actions">
+                <button type="button" id="closeTrazabilidadBtn" class="btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Sistema de Gestión de Pacientes de Urgencias © 2025</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
