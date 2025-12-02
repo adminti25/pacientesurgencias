@@ -1,17 +1,33 @@
-const samplePatients = [
-    { id: 1, name: "Juan Pérez López", age: 45, gender: "M", registerTime: "08:30", triage: "2", service: "Traumatología", diagnosis: "Fractura de tibia", destination: "Imagen", cubicle: "1", stayTime: "02:15", status: "activo", registerDateTime: new Date(new Date().setHours(8,30,0,0)), dischargeDateTime: null,
-      trazabilidad: [{time:"08:30",desc:"Registro en urgencias"},{time:"08:45",desc:"Evaluación de triage - Nivel 2"},{time:"09:00",desc:"Asignado a cubículo 1"},{time:"09:15",desc:"Evaluación médica inicial"},{time:"09:30",desc:"Enviado a Imagen para radiografía"}] },
-    { id: 2, name: "María García Ruiz", age: 32, gender: "F", registerTime: "09:15", triage: "3", service: "Medicina General", diagnosis: "Infección respiratoria", destination: "Observación", cubicle: "2", stayTime: "01:45", status: "activo", registerDateTime: new Date(new Date().setHours(9,15,0,0)), dischargeDateTime: null,
-      trazabilidad: [{time:"09:15",desc:"Registro en urgencias"},{time:"09:25",desc:"Evaluación de triage - Nivel 3"},{time:"09:40",desc:"Asignado a cubículo 2"},{time:"10:00",desc:"Evaluación médica"}] },
-    { id: 3, name: "Carlos Rodríguez Méndez", age: 67, gender: "M", registerTime: "10:05", triage: "1", service: "Traumatología", diagnosis: "Traumatismo craneoencefálico", destination: "Hospitalización", cubicle: "Sala de Choque", stayTime: "03:30", status: "alta", registerDateTime: new Date(new Date().setHours(10,5,0,0)), dischargeDateTime: new Date(new Date().setHours(13,35,0,0)),
-      trazabilidad: [{time:"10:05",desc:"Registro en urgencias - Paciente crítico"},{time:"10:07",desc:"Evaluación de triage - Nivel 1"},{time:"10:10",desc:"Trasladado a Sala de Choque"},{time:"10:20",desc:"Equipo de resucitación activado"},{time:"10:45",desc:"Estabilización inicial completada"},{time:"11:30",desc:"Preparado para hospitalización"},{time:"13:35",desc:"Alta médica - Trasladado a hospitalización"}] }
-];
+// script.js - VERSIÓN CON PERSISTENCIA Y TABLA VACÍA AL INICIO
 
-let patients = [...samplePatients];
+let patients = [];
 let currentPage = 1;
 const patientsPerPage = 10;
 let editingPatientId = null;
 let timerInterval;
+
+// === CARGA DESDE localStorage AL INICIAR ===
+function loadPatientsFromStorage() {
+    const saved = localStorage.getItem('urgencias_patients');
+    if (saved) {
+        patients = JSON.parse(saved).map(p => ({
+            ...p,
+            registerDateTime: new Date(p.registerDateTime),
+            dischargeDateTime: p.dischargeDateTime ? new Date(p.dischargeDateTime) : null
+        }));
+    }
+    // Si no hay nada guardado → queda vacío (como querías)
+}
+
+// === GUARDAR EN localStorage CADA VEZ QUE CAMBIE ===
+function savePatientsToStorage() {
+    localStorage.setItem('urgencias_patients', JSON.stringify(patients));
+}
+
+// === ELIMINAMOS LOS DATOS DE EJEMPLO ===
+// (ya no existe samplePatients ni se copian al inicio)
+
+// === RESTO DEL CÓDIGO SIN CAMBIOS (solo añadimos guardado donde corresponda) ===
 
 const patientsTableBody = document.getElementById('patientsTableBody');
 const statsTableBody = document.getElementById('statsTableBody');
@@ -35,7 +51,6 @@ const birthDateInput = document.getElementById('birthDate');
 const ageInput = document.getElementById('age');
 const registerTimeInput = document.getElementById('registerTime');
 const destinationSelect = document.getElementById('destination');
-
 const navRegistro = document.getElementById('nav-registro');
 const navEstadisticas = document.getElementById('nav-estadisticas');
 const registroSection = document.getElementById('registro-section');
@@ -98,6 +113,9 @@ function renderPatientsTable() {
 
     if (pagePatients.length === 0) {
         patientsTableBody.innerHTML = '<tr><td colspan="12" style="text-align:center;">No se encontraron pacientes</td></tr>';
+        pageInfo.textContent = `Página 1 de 1`;
+        prevPageBtn.disabled = true;
+        nextPageBtn.disabled = true;
         return;
     }
 
@@ -162,6 +180,7 @@ function openEditModal() {
 function handleDelete(id) {
     if (confirm('¿Eliminar este registro?')) {
         patients = patients.filter(p => p.id !== id);
+        savePatientsToStorage();           // ← GUARDAR
         renderPatientsTable();
         renderStatistics();
     }
@@ -175,6 +194,8 @@ function handleDischarge(id) {
         p.stayTime = formatTimeDiff(p.registerDateTime, p.dischargeDateTime);
         if (!p.trazabilidad) p.trazabilidad = [];
         p.trazabilidad.push({ time: getCurrentTime(), desc: "Alta médica - Paciente dado de alta" });
+        
+        savePatientsToStorage();           // ← GUARDAR
         renderPatientsTable();
         renderStatistics();
         alert(`Paciente ${p.name} dado de alta`);
@@ -184,7 +205,7 @@ function handleDischarge(id) {
 function showTrazabilidad(id) {
     const p = patients.find(x => x.id === id);
     trazabilidadTitle.textContent = `Trazabilidad - ${p.name}`;
-    trazabilidadContent.innerHTML = p.trazabilidad && p.trazabilidad.length 
+    trazabilidadContent.innerHTML = p.trazabilidad && p.trazabilidad.length
         ? p.trazabilidad.map(t => `<div class="trazabilidad-item"><div class="trazabilidad-time">${t.time}</div><div class="trazabilidad-desc">${t.desc}</div></div>`).join('')
         : '<p>No hay trazabilidad disponible</p>';
     trazabilidadModal.style.display = 'flex';
@@ -201,6 +222,8 @@ function renderStatistics() {
         const h = Math.floor(avg / 3600000).toString().padStart(2,'0');
         const m = Math.floor((avg % 3600000) / 60000).toString().padStart(2,'0');
         tiempoPromedio.textContent = `${h}:${m}`;
+    } else {
+        tiempoPromedio.textContent = "00:00";
     }
 
     statsTableBody.innerHTML = '';
@@ -212,12 +235,22 @@ function renderStatistics() {
     });
 }
 
+// === CARGA INICIAL ===
 document.addEventListener('DOMContentLoaded', () => {
+    loadPatientsFromStorage();                    // ← Carga datos guardados (o vacío)
+    
     birthDateInput.max = new Date().toISOString().split('T')[0];
     birthDateInput.addEventListener('change', () => ageInput.value = calculateAge(birthDateInput.value));
-    registerTimeInput.value = new Date().toTimeString().slice(0,5);
+    registerTimeInput.value = getCurrentTime();
 
-    addPatientBtn.onclick = () => { editingPatientId = null; modalTitle.textContent = 'Nuevo Paciente'; patientForm.reset(); registerTimeInput.value = getCurrentTime(); patientModal.style.display = 'flex'; };
+    addPatientBtn.onclick = () => { 
+        editingPatientId = null; 
+        modalTitle.textContent = 'Nuevo Paciente'; 
+        patientForm.reset(); 
+        registerTimeInput.value = getCurrentTime(); 
+        patientModal.style.display = 'flex'; 
+    };
+
     patientForm.onsubmit = e => {
         e.preventDefault();
         const data = {
@@ -245,18 +278,28 @@ document.addEventListener('DOMContentLoaded', () => {
             patients[idx] = { ...patients[idx], ...data };
         } else {
             data.id = patients.length ? Math.max(...patients.map(p=>p.id)) + 1 : 1;
-            if (data.destination) data.trazabilidad.push({ time: getCurrentTime(), desc: getDestinationDescription(data.destination) });
+            if (data.destination) {
+                data.trazabilidad.push({ time: getCurrentTime(), desc: getDestinationDescription(data.destination) });
+            }
             patients.push(data);
         }
+
+        savePatientsToStorage();           // ← GUARDAR
         patientModal.style.display = 'none';
         renderPatientsTable();
+        renderStatistics();
     };
 
     cancelBtn.onclick = () => patientModal.style.display = 'none';
-    closeModalBtn.forEach(b => b.onclick = () => { patientModal.style.display = 'none'; trazabilidadModal.style.display = 'none'; });
-    window.onclick = e => { if (e.target === patientModal || e.target === trazabilidadModal) e.target.style.display = 'none'; };
+    closeModalBtn.forEach(b => b.onclick = () => { 
+        patientModal.style.display = 'none'; 
+        trazabilidadModal.style.display = 'none'; 
+    });
+    window.onclick = e => { 
+        if (e.target === patientModal || e.target === trazabilidadModal) e.target.style.display = 'none'; 
+    };
 
-    document.getElementById('searchBtn').onclick = () => { renderPatientsTable(); };
+    document.getElementById('searchBtn').onclick = () => { currentPage = 1; renderPatientsTable(); };
     statusFilter.onchange = triageFilter.onchange = serviceFilter.onchange = () => { currentPage = 1; renderPatientsTable(); };
     prevPageBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderPatientsTable(); } };
     nextPageBtn.onclick = () => { currentPage++; renderPatientsTable(); };
@@ -277,5 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     renderPatientsTable();
-    timerInterval = setInterval(() => { if (registroSection.style.display !== 'none') renderPatientsTable(); }, 1000);
+    renderStatistics();
+
+    timerInterval = setInterval(() => { 
+        if (registroSection.style.display !== 'none') renderPatientsTable(); 
+    }, 1000);
 });
